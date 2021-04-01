@@ -3,7 +3,13 @@ import { fetchDailyData } from "../../api";
 import { Line, Bar } from "react-chartjs-2";
 import { StylesProvider } from "@material-ui/styles";
 import styles from "./Chart.module.css";
-const Chart = ({ data: { confirmed, recovered, deaths }, country }) => {
+
+import Chart from "react-google-charts";
+
+const ChartComponent = ({
+  data: { confirmed, recovered, deaths },
+  country,
+}) => {
   const [dailyData, setDailyData] = useState([]);
 
   useEffect(() => {
@@ -12,51 +18,54 @@ const Chart = ({ data: { confirmed, recovered, deaths }, country }) => {
     };
     fetchApi();
     console.log("asdasd", dailyData);
-  }, [setDailyData]);
+  }, []);
 
+  // console.log(
+  //   "=====>>>>>",
+  //   dailyData.map(({ confirmed, deaths, date }) => [
+  //     new Date(date).toDateString(),
+  //     confirmed,
+  //     deaths,
+  //   ])
+  // );
   const lineChart =
     dailyData.length > 0 ? (
-      <Line
-        data={{
-          labels: dailyData.map(({ date }) => new Date(date).toDateString()),
-          datasets: [
-            {
-              data: dailyData.map(({ confirmed }) => confirmed),
-              label: "Infected",
-              borderColor: "#3333ff",
-              fill: true,
-            },
-            {
-              data: dailyData.map(({ deaths }) => deaths),
-              label: "deaths",
-              borderColor: "red",
-              backgroundColor: "rgba(255,0,0,0.5)",
-              fill: true,
-            },
-          ],
+      <Chart
+        width={"100%"}
+        height={"520px"}
+        chartType="AreaChart"
+        loader={<div>Loading Chart</div>}
+        data={[["Date", "Confirmed", "Deaths"]].concat(
+          dailyData.map(({ confirmed, deaths, date }) => [
+            new Date(date).toDateString(),
+            confirmed,
+            deaths,
+          ])
+        )}
+        options={{
+          title: "Current Demography around the world",
+          chartArea: { width: "70%", height: "70%" },
         }}
+        legendToggle
       />
     ) : null;
   const barChart = confirmed ? (
-    <Bar
-      data={{
-        labels: ["Infected", "Recovered", "deaths"],
-        datasets: [
-          {
-            label: 'People',
-            data: [confirmed.value, recovered.value, deaths.value],
-            backgroundColor: [
-              "rgba(0, 0, 255, 0.5)",
-              "rgba(0, 255, 0, 0.5)",
-              "rgba(255, 0, 0, 0.5)",
-            ],
-            fill: true,
-          },
-        ],
-      }}
+    <Chart
+      width={"100%"}
+      height={"520px"}
+      chartType="Bar"
+      loader={<div>Loading Chart</div>}
+      data={[
+        ["", "Infected", "Recovered", "deaths"],
+        [country, confirmed.value, recovered.value, deaths.value],
+      ]}
       options={{
-        legend: { display: false },
-        title: { display: true, text: `Current state in ${country}` },
+        // Material design options
+        chartArea: { width: "100%", height: "100%" },
+        chart: {
+          title: `Current state in ${country}`,
+        },
+        colors: ["#7f80ff", "#a5ff9a", "#ff948d"],
       }}
     />
   ) : null;
@@ -66,4 +75,4 @@ const Chart = ({ data: { confirmed, recovered, deaths }, country }) => {
   );
 };
 
-export default Chart;
+export default ChartComponent;
