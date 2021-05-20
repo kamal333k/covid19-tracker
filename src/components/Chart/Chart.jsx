@@ -65,7 +65,7 @@ const ChartComponent = ({
         chart: {
           title: `Current state in ${country}`,
         },
-        colors: ["#7f80ff", "#a5ff9a", "#ff948d"],
+        colors: ["#1c73e8", "#178037", "#d93025"],
       }}
     />
   ) : null;
